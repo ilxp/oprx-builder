@@ -185,22 +185,22 @@ jobs:
         #local-dir: ${{ env.build_dir }}/openwrt/ota/
         #dangerous-clean-slate: true  
    
-    #- name: Release OTA/VerMD5
-      #uses: ncipollo/release-action@v1.14.0
-      #with:
-        ##name: OpenWrt-${{ env.latest_release }}
-        #name: Firmware
-        #allowUpdates: true
-        #tag: firmware
-        #commit: main  # 这里必须更改为你仓库的实际分支名称否则固件编译后无法发布到 releases，如：main、master
-        #replacesArtifacts: true
-        #token: ${{ secrets.workflow_token }}
-        #artifacts: ${{ env.build_dir }}/openwrt/ota/*
-
-    - name: Sync vermd5
-      #if: env.release_kmod == 'true'
-      uses: peter-evans/repository-dispatch@v3
+    - name: Release OTA/VerMD5
+      uses: ncipollo/release-action@v1.14.0
       with:
+        #name: OpenWrt-${{ env.latest_release }}
+        name: Firmware
+        allowUpdates: true
+        tag: firmware
+        commit: main  # 这里必须更改为你仓库的实际分支名称否则固件编译后无法发布到 releases，如：main、master
+        replacesArtifacts: true
         token: ${{ secrets.workflow_token }}
-        repository: ilxp/oprx-builder
-        event-type: sync 
+        artifacts: ${{ env.build_dir }}/openwrt/ota/*
+
+    #- name: Sync vermd5
+      ##if: env.release_kmod == 'true'
+      #uses: peter-evans/repository-dispatch@v3
+      #with:
+        #token: ${{ secrets.workflow_token }}
+        #repository: ilxp/oprx-builder
+        #event-type: sync 
