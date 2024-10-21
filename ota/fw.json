@@ -1,0 +1,9 @@
+{
+  "x86_64": [
+    {
+      "build_date": "1729523707",
+      "sha256sum": "cf5d2794c6b8ac829485998bf433229077db2078f1e4b33577abe5731c5f2d01",
+      "url": "https://github.com/ilxp/oprx-builder/releases/download/firmware/oprx-oD-x86-64-generic-squashfs-combined-efi.img.gz"
+    }
+  ]
+}
