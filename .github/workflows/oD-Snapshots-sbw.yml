@@ -152,7 +152,7 @@ jobs:
           ${{ env.build_dir }}/rom/*
 
     - name: Release kmods
-      if: ${{ matrix.model != 'nanopi-r4s' }}
+      #if: ${{ matrix.model != 'nanopi-r4s' }}
       uses: ncipollo/release-action@v1.14.0
       #uses: sbwml/release-action@main
       with:
