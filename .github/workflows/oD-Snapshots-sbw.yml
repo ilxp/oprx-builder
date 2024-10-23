@@ -188,7 +188,7 @@ jobs:
     - name: Release OTA/VerMD5
       uses: ncipollo/release-action@v1.14.0
       with:
-        name: OpenWrt-${{ env.latest_release }}
+        #name: OpenWrt-${{ env.latest_release }}
         name: Firmware
         allowUpdates: true
         tag: firmware
