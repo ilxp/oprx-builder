@@ -1,9 +1,9 @@
 {
-  "x86_64": [
-    {
-      "build_date": "1729617250",
-      "sha256sum": "6616101100a6563eaa3d54e386800c3fa15dc8c0813bb2be3c26bf3a9bd5996c",
-      "url": "https://ghp.ci/github.com/ilxp/oprx-builder/releases/download/firmware/OprX-oDR24.10.24-2024102420-633c2-x86-64-generic-squashfs-combined-efi.img.gz"
-    }
-  ]
+    "x86_64": [
+        {
+            "build_date": "1729617250",
+            "sha256sum": "3ea5ce1901110a69a45961e72acdd29e7a1b10696d50a3ec24d26a7ec48d510d",
+            "url": "https://ghp.ci/github.com/sbwml/builder/releases/download/v23.05.5/openwrt-23.05.5-x86-64-generic-squashfs-combined-efi.img.gz"
+        }
+    ],
 }
