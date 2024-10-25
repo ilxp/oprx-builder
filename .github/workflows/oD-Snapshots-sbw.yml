@@ -105,7 +105,8 @@ jobs:
           #cp -a openwrt/.config  rom/${{matrix.model}}.config
         elif [ "${{ matrix.model }}" = "x86_64" ]; then
           #cp -a openwrt/bin/targets/x86/*/*-ext4-combined-efi.img.gz rom/
-          cp -a openwrt/bin/targets/x86/*/*-squashfs-combined-efi.img.gz rom/
+          #cp -a openwrt/bin/targets/x86/*/*-squashfs-combined-efi.img.gz rom/
+          cp -a openwrt/bin/targets/x86/*/*.img.gz rom/
           #cp -a openwrt/bin/targets/x86/*/*-generic-rootfs.tar.gz rom/  
           #rename -v "s/openwrt-/${{ env.date1 }}-OprX-oD-/" rom/* || true
           #cp -a openwrt/bin/targets/x86/*/*-x86-64-generic.manifest info/manifest.txt
