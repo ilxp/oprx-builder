@@ -1,0 +1,41 @@
+###########################################################
+#   Description: Refresh Release API                      #
+#   Author: Hyy2001X                                      #
+###########################################################
+
+name: Refresh API
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: sync
+
+  #schedule:
+    #- cron: 0 4,16 * * *
+  #watch:
+    #types: started
+  
+jobs:
+  Job:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+      contents: write
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@main
+
+    - name: Download Github Release API
+      run: |
+        wget https://api.github.com/repos/${{github.repository}}/releases/tags/firmware -O API
+        
+    - name: Upload API to Github Release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.workflow_token }}
+        file: ./API
+        file_glob: true
+        tag: firmware
+        overwrite: true

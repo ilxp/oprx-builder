@@ -1,0 +1,68 @@
+name: sync-version
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [sync]
+  watch:
+    types: started
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: sync-version - [${{ matrix.target }}]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      matrix:
+        target: 
+          #- aarch64_generic
+          #- arm_cortex-a9
+          #- armsr-armv8
+          - x86_64
+
+    steps:
+    - name: Checkout
+      continue-on-error: true
+      uses: actions/checkout@main
+      with:
+        ref: ${{ matrix.target }}
+
+    - name: Setup variables
+      run: |
+        sudo timedatectl set-timezone 'Asia/Shanghai'
+        if [ "${{ matrix.target }}" = "aarch64_generic" ]; then
+          echo "target=aarch64-6.12" >> "$GITHUB_ENV"
+        elif [ "${{ matrix.target }}" = "arm_cortex-a9" ]; then
+          echo "target=bcm53xx-6.12" >> "$GITHUB_ENV"
+        elif [ "${{ matrix.target }}" = "armsr-armv8" ]; then
+          echo "target=armv8-6.12" >> "$GITHUB_ENV"
+        elif [ "${{ matrix.target }}" = "x86_64" ]; then
+          #echo "target=x86_64-5.15" >> "$GITHUB_ENV"
+           echo "target=oprx-ota" >> "$GITHUB_ENV"
+        fi
+
+    - name: Sync kernel modules
+      run: |
+        kmod=$(curl -sk "https://api.github.com/repos/ilxp/oprx-builder/releases" | grep "browser_download_url" | grep "${{ env.target }}" | tail -1 | awk '{print $2}' | sed 's/\"//g')
+        #kmod_name=$(basename $kmod | sed 's/\.tar\.gz$//;s/^[^-]*-//')
+        kmod_name=$(basename $kmod | sed 's/\.tar\.gz$//;s/oprx-//')
+        rm -rf $kmod_name
+        curl -L $kmod -o $kmod_name.tar.gz --progress-bar
+        tar zxf $kmod_name.tar.gz && rm -f $kmod_name.tar.gz
+        echo "RELEASE_NAME=$kmod_name" >> "$GITHUB_ENV"
+        echo $kmod_name
+
+    - name: Git push  #存放在分支的目录
+      continue-on-error: true
+      run: |
+        git config --local user.name "actions"
+        git config --local user.email "action@github.com"
+        [ -d .git ] && git init
+        git add --all
+        git commit -sm "${{ env.RELEASE_NAME }} up to latest"
+        git push "https://${{ github.actor }}:${{ secrets.workflow_token }}@github.com/${{ github.repository }}" HEAD:${{ matrix.target }}
