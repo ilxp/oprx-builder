@@ -125,8 +125,8 @@ jobs:
           #cp -a openwrt/bin/targets/x86/*/config.buildinfo info/config.buildinfo
           cd rom && sha256sum *gz > ../info/sha256sums.txt
         fi
-        cd ..
-        tar zcf rom/oR_sha256info_${{ matrix.model }}.tar.gz info
+        #cd ..
+        #tar zcf rom/oR_sha256info_${{ matrix.model }}.tar.gz info
 
     #- name: Create virtual machine images
       #if: ${{ matrix.model == 'x86_64' }}

@@ -121,8 +121,8 @@ jobs:
           #cp -a openwrt/bin/targets/x86/*/config.buildinfo info/config.buildinfo
           cd rom && sha256sum *gz > ../info/sha256sums.txt
         fi
-        cd ..
-        tar zcf rom/eS_sha256info_${{ matrix.model }}.tar.gz info
+        #cd ..
+        #tar zcf rom/eS_sha256info_${{ matrix.model }}.tar.gz info
 
     #- name: Upload artifacts
      # uses: actions/upload-artifact@v4
