@@ -66,14 +66,38 @@ jobs:
     - name: Build System Setup
       uses: sbwml/actions@openwrt-build-setup
 
+    - name: Install LLVM
+      uses: sbwml/actions@install-llvm
+
+    - name: Restore Cached
+      if: ${{ matrix.model != 'armv8' && matrix.model != 'nanopi-r4s' }}
+      uses: actions/cache/restore@v4
+      with:
+        path: /builder/.ccache
+        key: ${{ matrix.tag.version }}-${{ matrix.model }}
+
+    - name: Restore Cached (releases)
+      if: ${{ matrix.model == 'armv8' || matrix.model == 'nanopi-r4s' }}
+      continue-on-error: true
+      working-directory: /builder
+      run: |
+        wget -q https://github.com/${{ github.repository }}/releases/download/ccache/${{ matrix.model }}.tar.00 || true
+        wget -q https://github.com/${{ github.repository }}/releases/download/ccache/${{ matrix.model }}.tar.01 || true
+        cat ${{ matrix.model }}.tar.* | tar -xf - || true
+        rm -rf ${{ matrix.model }}.tar.* || true
+        cache_size=$(du -sb .ccache | awk '{print $1}')
+        cache_size_mb=$(echo "scale=0; ${cache_size} / (1024 * 1024)" | bc)
+        echo "Cache Size: ~${cache_size_mb} MB (${cache_size} B)"
+        echo "Cache restored successfully"
+        echo "Cache restored from key: ${{ matrix.model }}"
+
     - name: Compile OpenWrt
       id: compile
       continue-on-error: true
       working-directory: /builder
       run: |
         [ "${{ matrix.model }}" != "netgear_r8500" ] && export KERNEL_CLANG_LTO=y
-        export BUILD_FAST=y ENABLE_BPF=y ENABLE_LTO=y ENABLE_LRNG=y USE_GCC15=y ENABLE_MOLD=y
-        #export ENABLE_BPF=y ENABLE_LTO=y ENABLE_LRNG=y USE_GCC15=y ENABLE_MOLD=y
+        export BUILD_FAST=y ENABLE_CCACHE=y ENABLE_BPF=y ENABLE_LTO=y ENABLE_LRNG=y USE_GCC15=y ENABLE_MOLD=y
         #bash <(curl -sS ${{ secrets.script_url_general }}) ${{ matrix.tag.type }} ${{ matrix.model }}
         bash <(curl -sS ${{ secrets.script_url_oP }}) ${{ matrix.tag.type }} ${{ matrix.model }}
         build_date=$(date "+%Y-%m-%d")
