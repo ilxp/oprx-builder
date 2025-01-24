@@ -67,7 +67,14 @@ jobs:
       uses: sbwml/actions@openwrt-build-setup
 
     - name: Install LLVM
-      uses: sbwml/actions@install-llvm
+      run: |
+        export PATH="/opt/clang/bin:$PATH"
+        echo "/opt/clang/bin" >> $GITHUB_PATH
+        wget -q ${{ secrets.clang }}
+        sudo mkdir /opt/clang
+        sudo tar --strip-components=1 -C /opt/clang -xf clang-*-x86_64-unknown-linux-gnu.tar.xz
+        rm -rf clang-*-x86_64-unknown-linux-gnu.tar.xz
+        clang --version
 
     - name: Restore Cached
       if: ${{ matrix.model != 'armv8' && matrix.model != 'nanopi-r4s' }}
@@ -81,11 +88,10 @@ jobs:
       continue-on-error: true
       working-directory: /builder
       run: |
-        wget -q https://github.com/${{ github.repository }}/releases/download/ccache/${{ matrix.model }}.tar.00 || true
-        wget -q https://github.com/${{ github.repository }}/releases/download/ccache/${{ matrix.model }}.tar.01 || true
+        curl -s https://api.github.com/repos/${{ github.repository }}/releases | grep 'browser_download_url' | grep ccache | grep ${{ matrix.model }} | awk -F '"' '{print $4}' | grep -v '^$' | xargs -n 1 wget -q || true
         cat ${{ matrix.model }}.tar.* | tar -xf - || true
         rm -rf ${{ matrix.model }}.tar.* || true
-        cache_size=$(du -sb .ccache | awk '{print $1}')
+        [ -d .ccache ] && cache_size=$(du -sb .ccache | awk '{print $1}') || cache_size=0
         cache_size_mb=$(echo "scale=0; ${cache_size} / (1024 * 1024)" | bc)
         echo "Cache Size: ~${cache_size_mb} MB (${cache_size} B)"
         echo "Cache restored successfully"
