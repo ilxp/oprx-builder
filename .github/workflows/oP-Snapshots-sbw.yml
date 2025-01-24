@@ -67,14 +67,7 @@ jobs:
       uses: sbwml/actions@openwrt-build-setup
 
     - name: Install LLVM
-      run: |
-        export PATH="/opt/clang/bin:$PATH"
-        echo "/opt/clang/bin" >> $GITHUB_PATH
-        wget -q ${{ secrets.clang }}
-        sudo mkdir /opt/clang
-        sudo tar --strip-components=1 -C /opt/clang -xf clang-*-x86_64-unknown-linux-gnu.tar.xz
-        rm -rf clang-*-x86_64-unknown-linux-gnu.tar.xz
-        clang --version
+      uses: sbwml/actions@install-llvm
 
     - name: Restore Cached
       if: ${{ matrix.model != 'armv8' && matrix.model != 'nanopi-r4s' }}
