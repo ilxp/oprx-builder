@@ -23,7 +23,7 @@ jobs:
         target:
           - arch: "x86_64"
             target: "x86"
-            kernel: "6.6"
+            kernel: "6.12"
 
     steps:
     - name: Setup variables
