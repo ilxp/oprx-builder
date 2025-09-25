@@ -29,7 +29,7 @@ jobs:
           - arch: "x86_64"
             target: "x86"
             kernel: "6.6"
-
+            
     steps:
     - name: Setup variables
       run: |
@@ -37,24 +37,11 @@ jobs:
         git config --global user.name 'actions'
         git config --global user.email 'action@github.com'
         echo build_dir="/builder" >> "$GITHUB_ENV"
-        if [[ ${{ matrix.model }} != "nanopi-r4s" ]]; then
-          echo "release_kmod=true" >> "$GITHUB_ENV"
+        if [[ "${{ matrix.model }}" == nanopi-* ]]; then
+          echo ccache_model=nanopi-r5s >> "$GITHUB_ENV"
+        else
+          echo ccache_model=${{ matrix.model }} >> "$GITHUB_ENV"
         fi
-        if [ "${{ matrix.model }}" = "nanopi-r5s" ]; then
-          echo "kmod_repo=kmod-aarch64" >> "$GITHUB_ENV"
-        elif [ "${{ matrix.model }}" = "x86_64" ]; then
-          echo "kmod_repo=oR-kmod-x86_64" >> "$GITHUB_ENV"
-        elif [ "${{ matrix.model }}" = "netgear_r8500" ]; then
-          echo "kmod_repo=kmod-bcm53xx" >> "$GITHUB_ENV"
-        elif [ "${{ matrix.model }}" = "armv8" ]; then
-          echo "kmod_repo=kmod-armsr-armv8" >> "$GITHUB_ENV"
-        fi
-
-    - name: Set date
-      id: date
-      run: |
-        #echo "date1=$(TZ=UTC-8 date +'%Y%m%d%H')" >> $GITHUB_ENV
-        echo "date1=$(TZ=UTC-8 date +'%m.%d.%Y')" >> $GITHUB_ENV
 
     - name: Show system
       run: |
@@ -75,24 +62,23 @@ jobs:
       with:
         build-mount-path: /builder
 
-    #- name: Build System Setup
-      #uses: sbwml/actions@openwrt-build-setup
-      
-    - name: Init build dependencies
-      env:
-           DEBIAN_FRONTEND: noninteractive
+    - name: Build System Setup
+      uses: sbwml/actions@openwrt-build-setup
+
+    - name: Install LLVM
+      uses: sbwml/actions@install-llvm
+
+    - name: Restore Cached
+      uses: actions/cache/restore@v4
+      with:
+        path: /builder/.ccache
+        key: ${{ matrix.tag.version }}-${{ env.ccache_model }}
+
+    - name: Set date
+      id: date
       run: |
-          sudo -E apt-get -qq update
-          sudo /bin/bash -c "$(curl -sL https://git.io/vokNn)"
-          sudo -E apt-fast -y -qq install asciidoc bash bcc bin86 binutils bison bzip2 clang file flex g++ g++-multilib gawk gcc-multilib gettext git gzip help2man intltool libbpf-dev libboost-dev libelf-dev libncurses-dev libssl-dev libthread-queue-any-perl libusb-dev libxml-parser-perl linux-tools-generic llvm make patch perl-modules pkg-config python3-dev python3-pip python3-pyelftools python3-setuptools rsync sharutils swig time unzip util-linux wget xsltproc zlib1g-dev zip zstd
-          sudo -E apt-fast -y -qq install dos2unix dwarves jq npm quilt
-          sudo -E npm install -g pnpm
-          pip3 install --user -U pylibfdt --break-system-packages
-          sudo -E apt-get -qq autoremove --purge
-          sudo -E apt-get -qq clean
-          sudo -E git config --global user.name 'GitHub Actions' && git config --global user.email 'noreply@github.com'
-          sudo -E git config --global core.abbrev auto
-          df -h
+        #echo "date1=$(TZ=UTC-8 date +'%Y%m%d%H')" >> $GITHUB_ENV
+        echo "date1=$(TZ=UTC-8 date +'%m.%d.%Y')" >> $GITHUB_ENV
 
     - name: Compile OpenWrt
       id: compile
