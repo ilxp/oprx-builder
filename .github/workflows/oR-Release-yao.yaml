@@ -185,7 +185,7 @@ jobs:
           ${{ env.build_dir }}/openwrt/*-*.tar.gz
 
     - name: Sync kernel modules
-      if: env.release_kmod == 'true'
+      #if: env.release_kmod == 'true'
       uses: peter-evans/repository-dispatch@v3
       with:
         token: ${{ secrets.workflow_token }}
