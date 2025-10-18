@@ -81,8 +81,8 @@ jobs:
       continue-on-error: true
       working-directory: /builder
       run: |
-        #export KERNEL_CLANG_LTO=y BUILD_FAST=y ENABLE_CCACHE=y ENABLE_OTA=y ENABLE_BPF=y ENABLE_LTO=y ENABLE_LRNG=y USE_GCC15=y ENABLE_MOLD=y
-        export KERNEL_CLANG_LTO=y ENABLE_BPF=y ENABLE_LTO=y ENABLE_LRNG=y USE_GCC15=y ENABLE_MOLD=y
+        export KERNEL_CLANG_LTO=y BUILD_FAST=y ENABLE_CCACHE=y ENABLE_OTA=y ENABLE_BPF=y ENABLE_LTO=y ENABLE_LRNG=y USE_GCC15=y ENABLE_MOLD=y
+        #export KERNEL_CLANG_LTO=y ENABLE_BPF=y ENABLE_LTO=y ENABLE_LRNG=y USE_GCC15=y ENABLE_MOLD=y
         #bash <(curl -sS ${{ secrets.script_url_general }}) ${{ matrix.tag.type }} ${{ matrix.model }}
         bash <(curl -sS ${{ secrets.script_url_oP }}) ${{ matrix.tag.type }} ${{ matrix.model }}
         build_date=$(date "+%Y-%m-%d")
