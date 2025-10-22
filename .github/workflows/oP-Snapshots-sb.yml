@@ -1,4 +1,4 @@
-name: Build oP-Snapshots-sbw
+name: Build oP-Snapshots-sb
 
 on:
   workflow_dispatch:
