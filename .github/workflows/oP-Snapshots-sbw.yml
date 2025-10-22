@@ -37,6 +37,11 @@ jobs:
         git config --global user.name 'actions'
         git config --global user.email 'action@github.com'
         echo build_dir="/builder" >> "$GITHUB_ENV"
+        if [[ "${{ matrix.model }}" == nanopi-* ]]; then
+          echo ccache_model=nanopi-r5s >> "$GITHUB_ENV"
+        else
+          echo ccache_model=${{ matrix.model }} >> "$GITHUB_ENV"
+        fi
 
     - name: Set date
       id: date
@@ -70,11 +75,10 @@ jobs:
       uses: sbwml/actions@install-llvm
 
     - name: Restore Cached
-      if: ${{ matrix.model != 'armv8' && matrix.model != 'nanopi-r4s' }}
       uses: actions/cache/restore@v4
       with:
         path: /builder/.ccache
-        key: ${{ matrix.tag.version }}-${{ matrix.model }}
+        key: ${{ matrix.tag.version }}-${{ env.ccache_model }}
 
     - name: Compile OpenWrt
       id: compile
@@ -82,7 +86,6 @@ jobs:
       working-directory: /builder
       run: |
         export KERNEL_CLANG_LTO=y BUILD_FAST=y ENABLE_CCACHE=y ENABLE_OTA=y ENABLE_BPF=y ENABLE_LTO=y ENABLE_LRNG=y USE_GCC15=y ENABLE_MOLD=y
-        #export KERNEL_CLANG_LTO=y ENABLE_BPF=y ENABLE_LTO=y ENABLE_LRNG=y USE_GCC15=y ENABLE_MOLD=y
         #bash <(curl -sS ${{ secrets.script_url_general }}) ${{ matrix.tag.type }} ${{ matrix.model }}
         bash <(curl -sS ${{ secrets.script_url_oP }}) ${{ matrix.tag.type }} ${{ matrix.model }}
         build_date=$(date "+%Y-%m-%d")
