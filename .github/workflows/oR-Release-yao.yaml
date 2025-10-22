@@ -1,4 +1,4 @@
-name: Build oR-Release-ya
+name: Build oR-Release-yao
 
 on:
   workflow_dispatch:
