@@ -24,7 +24,7 @@ jobs:
           - arch: "x86_64"
             target: "x86"
             kernel: "6.12"
-
+            
     steps:
     - name: Setup variables
       run: |
@@ -32,24 +32,11 @@ jobs:
         git config --global user.name 'actions'
         git config --global user.email 'action@github.com'
         echo build_dir="/builder" >> "$GITHUB_ENV"
-        if [[ ${{ matrix.model }} != "nanopi-r4s" ]]; then
-          echo "release_kmod=true" >> "$GITHUB_ENV"
+        if [[ "${{ matrix.model }}" == nanopi-* ]]; then
+          echo ccache_model=nanopi-r5s >> "$GITHUB_ENV"
+        else
+          echo ccache_model=${{ matrix.model }} >> "$GITHUB_ENV"
         fi
-        if [ "${{ matrix.model }}" = "nanopi-r5s" ]; then
-          echo "kmod_repo=kmod-aarch64" >> "$GITHUB_ENV"
-        elif [ "${{ matrix.model }}" = "x86_64" ]; then
-          echo "kmod_repo=eS-kmod-x86_64" >> "$GITHUB_ENV"
-        elif [ "${{ matrix.model }}" = "netgear_r8500" ]; then
-          echo "kmod_repo=kmod-bcm53xx" >> "$GITHUB_ENV"
-        elif [ "${{ matrix.model }}" = "armv8" ]; then
-          echo "kmod_repo=kmod-armsr-armv8" >> "$GITHUB_ENV"
-        fi
-
-    - name: Set date
-      id: date
-      run: |
-        #echo "date1=$(TZ=UTC-8 date +'%Y%m%d%H')" >> $GITHUB_ENV
-        echo "date1=$(TZ=UTC-8 date +'%m.%d.%Y')" >> $GITHUB_ENV
 
     - name: Show system
       run: |
@@ -73,14 +60,30 @@ jobs:
     - name: Build System Setup
       uses: sbwml/actions@openwrt-build-setup
 
+    - name: Install LLVM
+      uses: sbwml/actions@install-llvm
+
+    - name: Restore Cached
+      uses: actions/cache/restore@v4
+      with:
+        path: /builder/.ccache
+        key: ${{ matrix.tag.version }}-${{ env.ccache_model }}
+
+    - name: Set date
+      id: date
+      run: |
+        #echo "date1=$(TZ=UTC-8 date +'%Y%m%d%H')" >> $GITHUB_ENV
+        echo "date1=$(TZ=UTC-8 date +'%m.%d.%Y')" >> $GITHUB_ENV
+
     - name: Compile OpenWrt
       id: compile
       continue-on-error: true
       working-directory: /builder
       run: |
-        #export KERNEL_CLANG_LTO=y BUILD_FAST=y ENABLE_BPF=y ENABLE_LTO=y ENABLE_LRNG=y USE_GCC15=y USE_MOLD=y
+        #export KERNEL_CLANG_LTO=y BUILD_FAST=y ENABLE_CCACHE=y ENABLE_OTA=y ENABLE_BPF=y ENABLE_LTO=y ENABLE_LRNG=y USE_GCC15=y ENABLE_MOLD=y
         #bash <(curl -sS ${{ secrets.script_url_general }}) ${{ matrix.tag.type }} ${{ matrix.model }}
-        #export KERNEL_CLANG_LTO=y ENABLE_BPF=y ENABLE_LTO=y ENABLE_LRNG=y USE_GCC13=y USE_MOLD=y
+        #启用ENABLE_UHTTPD=y，不用nigix用uhttpd。gcc14
+        export KERNEL_CLANG_LTO=y ENABLE_UHTTPD=y ENABLE_CCACHE=y ENABLE_BPF=y ENABLE_LTO=y ENABLE_LRNG=y USE_GCC14=y ENABLE_MOLD=y
         bash <(curl -sS ${{ secrets.script_url_eS }}) ${{ matrix.tag.type }} ${{ matrix.model }}
         build_date=$(date "+%Y-%m-%d")
         echo "build_date=$build_date" >> $GITHUB_ENV
