@@ -1,0 +1,53 @@
+name: sync-version
+
+on:
+  watch:
+    types: started
+  repository_dispatch:
+    types: sync
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    if: github.event.repository.owner.id == github.event.sender.id
+    name: sync
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - name: Checkout
+      uses: actions/checkout@main
+      with:
+        ref: main
+        
+    - name: Download Version
+      run: |
+        kmod=$(curl -sk "https://api.github.com/repos/ilxp/oprx-builder/releases" | grep "browser_download_url" | grep "oprx-ota" | tail -1 | awk '{print $2}' | sed 's/\"//g')
+        #kmod_name=$(basename $kmod | sed 's/\.tar\.gz$//;s/^[^-]*-//')
+        kmod_name=$(basename $kmod | sed 's/\.tar\.gz$//;s/oprx-//')
+        rm -rf $kmod_name
+        curl -L $kmod -o $kmod_name.tar.gz --progress-bar
+        tar zxf $kmod_name.tar.gz && rm -f $kmod_name.tar.gz
+        echo "RELEASE_NAME=$kmod_name" >> "$GITHUB_ENV"
+        echo $kmod_name
+
+  
+    - name: Git push   #存放在根目录
+      run: |
+        sed -i '/url =/d' ./.git/config
+        git config --local user.name "actions"
+        git config --local user.email "action@github.com"
+        git add --all
+        git commit -m "up to latest"
+        git remote set-url --add origin "https://${{ github.actor }}:${{ secrets.workflow_token }}@github.com/${{ github.repository }}"
+        git fetch --unshallow origin
+        git push -u origin main
+
+    - name: Delete workflow runs
+      uses: Mattraks/delete-workflow-runs@v2
+      with:
+          retain_days: 1
+          keep_minimum_runs: 1

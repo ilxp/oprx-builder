@@ -1,0 +1,66 @@
+###########################################################
+#   Description: Refresh Release API                      #
+#   Author: Hyy2001X                                      #
+###########################################################
+
+name: Refresh API
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: sync
+
+  #schedule:
+    #- cron: 0 4,16 * * *
+  #watch:
+    #types: started
+  
+jobs:
+  Job:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+      contents: write
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@main
+
+    - name: Download Github Release API
+      run: |
+        wget https://api.github.com/repos/${{github.repository}}/releases/tags/firmware -O API
+        
+    - name: Upload API to Github Release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.workflow_token }}
+        file: ./API
+        file_glob: true
+        tag: firmware
+        overwrite: true
+        
+    - name: Delete old workflow runs
+      env:
+          GITHUB_TOKEN: ${{ secrets.workflow_token }}  # 使用 GitHub 提供的自动令牌
+      run: |
+          #!/bin/bash
+          one_day_ago=$(date -d '1 day ago' +%Y-%m-%dT%H:%M:%SZ)
+          repo="${GITHUB_REPOSITORY}"
+
+          # 获取所有工作流运行记录
+          runs=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" \
+            "https://api.github.com/repos/${repo}/actions/runs")
+
+          # 遍历每个运行记录
+          echo "$runs" | jq -c '.workflow_runs[]' | while read -r run; do
+            created_at=$(echo "$run" | jq -r '.created_at')
+            run_id=$(echo "$run" | jq -r '.id')
+
+            # 检查运行记录是否在 1 天前
+            if [[ "$created_at" < "$one_day_ago" ]]; then
+              echo "Deleting run ID: $run_id created at $created_at"
+              curl -X DELETE -H "Authorization: token ${GITHUB_TOKEN}" \
+                "https://api.github.com/repos/${repo}/actions/runs/${run_id}"
+            fi
+          done
