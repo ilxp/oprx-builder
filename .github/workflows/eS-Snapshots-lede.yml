@@ -197,13 +197,13 @@ jobs:
         #token: ${{ secrets.workflow_token }}
         #artifacts: ${{ env.build_dir }}/openwrt/ota/*
 
-    - name: Sync API
-      #if: env.release_kmod == 'true'
-      uses: peter-evans/repository-dispatch@v3
-      with:
-        token: ${{ secrets.workflow_token }}
-        repository: ilxp/oprx-builder
-        event-type: sync 
+    #- name: Sync API #已经移动到了release下
+      ##if: env.release_kmod == 'true'
+      #uses: peter-evans/repository-dispatch@v3
+      #with:
+        #token: ${{ secrets.workflow_token }}
+        #repository: ilxp/oprx-builder
+        #event-type: sync 
 
     #- name: Sync vermd5
       ##if: env.release_kmod == 'true'
