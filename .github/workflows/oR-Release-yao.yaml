@@ -123,6 +123,7 @@ jobs:
           #cp -a openwrt/bin/targets/x86/*/*-ext4-combined-efi.img.gz rom/
           #cp -a openwrt/bin/targets/x86/*/*-squashfs-combined-efi.img.gz rom/
           cp -a openwrt/bin/targets/x86/*/OprX-*.img.gz rom/
+          find openwrt/bin/packages/*/*  -name "*qos-gargoyle*" | xargs -i mv -f {} rom/
           #cp -a openwrt/bin/targets/x86/*/*-generic-rootfs.tar.gz rom/
           #cp -a openwrt/bin/targets/x86/*/*-x86-64-generic.manifest info/manifest.txt
           #cp -a openwrt/bin/targets/x86/*/config.buildinfo info/config.buildinfo
