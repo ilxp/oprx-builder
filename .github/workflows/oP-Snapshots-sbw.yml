@@ -24,11 +24,11 @@ jobs:
           #- netgear_r8500
         tag:
           - type: dev
-            version: openwrt-24.10          
+            version: openwrt-25.12        
         target:
           - arch: "x86_64"
             target: "x86"
-            kernel: "6.12"
+            kernel: "6.18"
 
     steps:
     - name: Setup variables
