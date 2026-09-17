@@ -156,7 +156,7 @@ jobs:
         #path: ${{ env.build_dir }}/rom/*.gz 
         
     - name: Create release
-      uses: ncipollo/release-action@v1.14.0
+      uses: ncipollo/release-action@v1.21.0
       with:
         #name: OpenWrt-${{ env.latest_release }}
         name: Firmware
@@ -171,7 +171,7 @@ jobs:
 
     - name: Release kmods
       #if: ${{ matrix.model != 'nanopi-r4s' }}
-      uses: ncipollo/release-action@v1.14.0
+      uses: ncipollo/release-action@v1.21.0
       #uses: sbwml/release-action@main
       with:
         #name: OpenWrt-${{ env.latest_release }}
@@ -204,7 +204,7 @@ jobs:
         #dangerous-clean-slate: true  
    
     #- name: Release OTA/VerMD5
-      #uses: ncipollo/release-action@v1.14.0
+      #uses: ncipollo/release-action@v1.21.0
       #with:
         ##name: OpenWrt-${{ env.latest_release }}
         #name: Firmware
