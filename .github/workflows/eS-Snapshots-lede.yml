@@ -119,9 +119,9 @@ jobs:
           #cp -a openwrt/.config  rom/${{matrix.model}}.config
         elif [ "${{ matrix.model }}" = "x86_64" ]; then
           #cp -a openwrt/bin/targets/x86/*/*-ext4-combined-efi.img.gz rom/
-          #cp -a openwrt/bin/targets/x86/*/*-squashfs-combined-efi.img.gz rom/
+          cp -a openwrt/bin/targets/x86/*/*-squashfs-combined-efi.img.gz rom/
           #find openwrt/bin/packages/*/*  -name "*qos-gargoyle*" | xargs -i mv -f {} rom/
-          cp -a openwrt/bin/targets/x86/*/OprX-*.img.gz rom/
+          #cp -a openwrt/bin/targets/x86/*/OprX-*.img.gz rom/
           #cp -a openwrt/bin/targets/x86/*/*-generic-rootfs.tar.gz rom/  
           #cp -a openwrt/bin/targets/x86/*/*-x86-64-generic.manifest info/manifest.txt
           #cp -a openwrt/bin/targets/x86/*/config.buildinfo info/config.buildinfo
@@ -186,7 +186,7 @@ jobs:
         #local-dir: ${{ env.build_dir }}/openwrt/ota/
         #dangerous-clean-slate: true  
    
-    - name: Release soup
+    - name: Release ONUP
       uses: ncipollo/release-action@main
       with:
         #name: OpenWrt-${{ env.latest_release }}
@@ -196,7 +196,7 @@ jobs:
         commit: main  # 这里必须更改为你仓库的实际分支名称否则固件编译后无法发布到 releases，如：main、master
         replacesArtifacts: true
         token: ${{ secrets.workflow_token }}
-        artifacts: ${{ env.build_dir }}/openwrt/soup/*.json
+        artifacts: ${{ env.build_dir }}/openwrt/onup/*.json
 
     #- name: Sync API #已经移动到了release下
       ##if: env.release_kmod == 'true'
